@@ -1306,6 +1306,26 @@ def test_bytesize_conversions(input_value, output, human_bin, human_dec, human_s
     assert m.size.human_readable(separator=' ') == human_sep
 
 
+@pytest.mark.parametrize(
+    'size,expected_bin,expected_dec',
+    [
+        (1023, '1023B', '1.0KB'),
+        (1024, '1.0KiB', '1.0KB'),
+        (1024 * 1024 - 1, '1.0MiB', '1.0MB'),
+        (1024 * 1024, '1.0MiB', '1.0MB'),
+        (999, '999B', '999B'),
+        (1000, '1000B', '1.0KB'),
+        (999_999, '976.6KiB', '1.0MB'),
+        (1_000_000, '976.6KiB', '1.0MB'),
+        (-1048575, '-1.0MiB', '-1.0MB'),
+    ],
+)
+def test_bytesize_human_readable_boundaries(size, expected_bin, expected_dec):
+    b = ByteSize(size)
+    assert b.human_readable() == expected_bin
+    assert b.human_readable(decimal=True) == expected_dec
+
+
 def test_bytesize_to():
     class Model(BaseModel):
         size: ByteSize
